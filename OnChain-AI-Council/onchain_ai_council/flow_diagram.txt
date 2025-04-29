@@ -1,0 +1,4 @@
+[User] --> [Streamlit UI] --> [Submit Proposal]
+[Streamlit UI] --> [AI Agents Debate]
+[AI Agents] --> [Votes to Blockchain]
+[Blockchain] --> [Final Decision Display]
