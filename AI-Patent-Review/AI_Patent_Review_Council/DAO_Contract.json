@@ -1,0 +1,23 @@
+{
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "proposalId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum DAOCouncil.Decision",
+          "name": "decision",
+          "type": "uint8"
+        }
+      ],
+      "name": "Finalized",
+      "type": "event"
+    }
+  ]
+}
