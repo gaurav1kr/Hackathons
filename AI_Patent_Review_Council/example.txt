@@ -1,0 +1,15 @@
+Incremental VPC Backup and Restore with associated components viz. Instances(with data) , Associated subnets , Public gateways etc.
+
+
+Our proposal will facilitate the user to take incremental backup of instances which are created under a VPC and subsequent restore also (either latest or any version which customers want).
+    Incremental backup involves storing only the changes made to files or blocks since the last backup (either full or incremental). This reduces storage requirements and speeds 
+    up the backup process. A novel mechanism for incremental backup can include the following features:
+        - Efficient change detection: Use filesystem snapshots or checksum-based comparisons.
+        - Granular tracking: Backups can work at both file and block levels.
+        - Metadata-driven backups: Include detailed metadata to support efficient incremental restores.
+    Incremental restore involves reconstructing an instance or environment from a base full backup and applying subsequent incremental backups to restore the state to a specific point
+      in time. This approach is designed to reduce restore time, ensure accuracy, and minimise resource usage. 
+      A novel mechanism for incremental restore introduces :- 
+        - Efficient tracking
+        - Selective restores
+        - Parallelism for enhanced performance.
