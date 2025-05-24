@@ -29,44 +29,38 @@ class Agent:
         return opinion, reason
 
     def evaluate_strategy(self, proposal):
-        if any(word in proposal.description.lower() for word in ["scalable", "growth", "long term", "strategic"]):
-            return "Approve"
-        return "Reject"
+        keywords = ["scalable", "growth", "expansion", "market", "long term"]
+        found = any(word in (proposal.title + proposal.description).lower() for word in keywords)
+        return "Approve" if found else random.choice(["Approve", "Reject"])
 
     def evaluate_ethics(self, proposal):
-        if any(word in proposal.description.lower() for word in ["exploit", "unfair", "harm", "bias", "manipulate"]):
-            return "Reject"
-        return "Approve"
+        unethical = ["exploit", "unfair", "harm", "bias", "discriminate"]
+        found = any(word in (proposal.title + proposal.description).lower() for word in unethical)
+        return "Reject" if found else random.choice(["Approve"] * 3 + ["Reject"])
 
     def evaluate_resources(self, proposal):
-        if any(word in proposal.description.lower() for word in ["expensive", "overbudget", "high cost", "resource intensive"]):
-            return "Reject"
-        return "Approve"
+        costly = ["expensive", "overbudget", "high cost", "resource intensive"]
+        found = any(word in (proposal.title + proposal.description).lower() for word in costly)
+        return "Reject" if found else random.choice(["Approve", "Approve", "Reject"])
 
     def evaluate_risks(self, proposal):
-        if any(word in proposal.description.lower() for word in ["volatile", "risky", "uncertain", "unpredictable", "unproven"]):
-            return "Reject"
-        return "Approve"
+        risky = ["volatile", "risky", "uncertain", "unpredictable", "unstable"]
+        found = any(word in (proposal.title + proposal.description).lower() for word in risky)
+        return "Reject" if found else random.choice(["Approve", "Reject"])
 
     def evaluate_novelty(self, proposal):
         if not proposal.patent_matches:
             return "Approve"
-        
-        # If top match is highly similar (>80), reject
-        if proposal.patent_matches[0]["score"] >= 80:
-            return "Reject"
-        
-        # If top match is moderately similar (50-79), randomly decide
-        if 50 <= proposal.patent_matches[0]["score"] < 80:
-            return random.choice(["Approve", "Reject"])
-
-        return "Approve"
+        top_match = proposal.patent_matches[0]
+        score = top_match.get("score", 0) if isinstance(top_match, dict) else 0
+        return "Reject" if score >= 10 else "Approve"
 
     def generate_reason(self, proposal, opinion):
         if self.role == "Patent Novelty Evaluator" and proposal.patent_matches:
             best_match = proposal.patent_matches[0]
-            return (f"As a {self.role}, I vote to {opinion} because a similar patent exists "
-                    f"('{best_match['title']}' with similarity score {best_match['score']}%).")
+            title = best_match.get("title", "Unknown")
+            score = best_match.get("score", "?")
+            return f"As a {self.role}, I vote to {opinion} because similar patent '{title}' scored {score}%."
         return f"As a {self.role}, I vote to {opinion} the proposal '{proposal.title}'."
 
 class Council:
@@ -77,6 +71,8 @@ class Council:
         debate_logs = []
         votes = {"Approve": 0, "Reject": 0}
         agent_opinions = []
+        novelty_rejected = False
+        novelty_reason = ""
 
         for agent in self.agents:
             opinion, reason = agent.analyze_proposal(proposal)
@@ -84,5 +80,13 @@ class Council:
             votes[opinion] += 1
             agent_opinions.append((agent.name, opinion, reason))
 
-        decision = "Approve" if votes["Approve"] > votes["Reject"] else "Reject"
+            if agent.role == "Patent Novelty Evaluator" and opinion == "Reject":
+                novelty_rejected = True
+                novelty_reason = reason
+
+        if novelty_rejected:
+            debate_logs.append("⚠️ Council Override: Final decision is ❌ Reject due to novelty conflict.")
+            debate_logs.append(f"🧬 Reason: {novelty_reason}")
+
+        decision = "Reject" if novelty_rejected else ("Approve" if votes["Approve"] > votes["Reject"] else "Reject")
         return debate_logs, votes, decision, agent_opinions
