@@ -6,7 +6,7 @@ def search_google_patents(title, description, max_results=5):
     Uses SerpAPI to search Google Patents and compute similarity scores.
     Returns (matches_list, match_count, error_message)
     """
-    api_key = "1d7a2d0fa1a6ed0de7c28fbf5139ebb0fb261e3c4c5bf105d0b3976ea971b5b9"  # Replace with your actual SerpAPI key
+    api_key = ""
     query = f"{title} {description} site:patents.google.com"
 
     try:
